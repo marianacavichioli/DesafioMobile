@@ -16,8 +16,7 @@
             android:theme="@style/AppThemeNoActionBar">
         </activity>
         <activity
-            android:name=".social.SocialActivity"
-            android:theme="@style/AppThemeNoActionBar">
+            android:name=".social.SocialActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -3,6 +3,8 @@ package com.example.mariana.desafiomobile.social;
 import com.example.mariana.desafiomobile.entity.SocialEntity;
 import com.example.mariana.desafiomobile.entity.SocialListEntity;
 import com.example.mariana.desafiomobile.network.api.SocialApi;
+import com.google.gson.Gson;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -20,32 +22,60 @@ public class SocialPresenter {
     }
 
 
-    protected void updateList(){
+    protected void updateList(String jsonSocial) {
 
-        final SocialApi socialApi = SocialApi.getInstance();
-        socialApi.getSocial().enqueue(new Callback<SocialListEntity>() {
-            @Override
-            public void onResponse(Call<SocialListEntity> call, Response<SocialListEntity> response) {
-                socialListEntity = response.body();
+        //verifica se há informações no json
+        if (jsonSocial != null) {
+            socialListEntity = new Gson().fromJson(jsonSocial, SocialListEntity.class);
+            socialList = socialListEntity.getSocial();
+            socialView.updateList(socialList);
 
-                if(socialListEntity != null && socialListEntity.getSocial() != null) {
-                    //socialList = socialListEntity.getSocial();
-                    socialView.updateList(socialListEntity.getSocial());
-                }else {
-                    socialView.showMessage("Falha no acesso");
+        } else { //se não houver informações previamente no json, é necessário baixá-las
+
+            final SocialApi socialApi = SocialApi.getInstance();
+            socialView.showLoading();
+            socialApi.getSocial().enqueue(new Callback<SocialListEntity>() {
+                @Override
+                public void onResponse(Call<SocialListEntity> call, Response<SocialListEntity> response) {
+                    socialView.hideLoading();
+                    socialListEntity = response.body();
+
+                    if (socialListEntity != null && socialListEntity.getSocial() != null) {
+                        socialView.updateList(socialListEntity.getSocial());
+                    } else {
+                        socialView.showMessage("Falha no acesso");
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<SocialListEntity> call, Throwable t){
-                socialView.showMessage("Falha no acesso ao servidor");
-            }
+                @Override
+                public void onFailure(Call<SocialListEntity> call, Throwable t) {
+                    socialView.hideLoading();
+                    socialView.showMessage("Falha no acesso ao servidor");
+                    socialView.workOffline();
 
-        });
+                }
+
+            });
+        }
     }
 
-    SocialEntity getSocialId(int position) throws IndexOutOfBoundsException{
+    SocialEntity getSocialId(int position) throws IndexOutOfBoundsException {
         return socialListEntity.getSocial().get(position);
+
+    }
+
+    //Converte a lista de filmes para json e retorna para a camada de visualização persistir os dados
+    public void saveSocial() {
+        String jsonSocialEntity = new Gson().toJson(socialListEntity);
+        socialView.saveSocialInSharedPreferences(jsonSocialEntity);
+    }
+
+
+    void openSocial(String jsonSocial) {
+        if(jsonSocial != null){
+            socialView.openSocial(jsonSocial);
+        }
+
     }
 }
 
