@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">DesafioMobile</string>
+    <string name="help">Ajudando a melhorar o mundo</string>
+    <string name="username">Nome de usuário</string>
+    <string name="password">Senha</string>
+    <string name="sign_in">Entrar</string>
+    <string name="social_entity_json">social_entity_json</string>
+    <string name="social">social</string>
+    <string name="descricao">Descricao</string>
+    <string name="site">Site</string>
+</resources>
